@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reflect AI - Learn by Thinking First</title>
+    <link rel="stylesheet" href="styles.css">
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #232946 0%, #667eea 100%);
+        --secondary-gradient: linear-gradient(135deg, #4f46e5, #7c3aed);
+        --glass-bg: rgba(255, 255, 255, 0.82);
+        --glass-border: rgba(120, 120, 255, 0.18);
+        --shadow-lg: 0 10px 32px 0 rgba(76, 81, 255, 0.13), 0 1.5px 8px 0 rgba(120, 120, 255, 0.10);
+        --shadow-sm: 0 2px 8px rgba(120, 120, 255, 0.10);
+        --border-radius: 22px;
+        --border-radius-lg: 36px;
+        --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: var(--primary-gradient);
+        min-height: 100vh;
+        color: #232946;
+        line-height: 1.7;
+        overflow-x: hidden;
+        transition: background 0.5s;
+    }
+
+    /* Dark mode variables */
+    body.dark-mode {
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+        --glass-bg: rgba(17, 24, 39, 0.95);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        color: #e5e7eb;
+    }
+
+    body.dark-mode .container {
+        background: linear-gradient(145deg, rgba(30,41,59,0.9), rgba(17,24,39,0.95));
+        border: 1.5px solid rgba(255,255,255,0.08);
+        box-shadow: 0 6px 24px rgba(0,0,0,0.6);
+    }
+
+    body.dark-mode .chat-container {
+        background: #111827;
+    }
+
+    body.dark-mode .welcome-card,
+    body.dark-mode .message.ai {
+        background: #1f2937;
+        border: 1.5px solid rgba(255,255,255,0.08);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+        color: #f3f4f6;
+    }
+
+    body.dark-mode .input-field {
+        background: #1e293b;
+        border: 2px solid rgba(255,255,255,0.08);
+        color: #e5e7eb;
+    }
+
+    body.dark-mode .input-field:focus {
+        border-color: #6366f1;
+        background: #111827;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.3);
+    }
+
+    body.dark-mode .sidebar {
+        background: #111827;
+        border-right: 1px solid rgba(255,255,255,0.05);
+        box-shadow: inset -2px 0 8px rgba(0,0,0,0.3);
+    }
+
+    body.dark-mode .header {
+        background: linear-gradient(135deg, #4338ca, #6d28d9);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+
+    .container {
+        max-width: 1100px;
+        margin: 36px auto;
+        min-height: 80vh;
+        background: var(--glass-bg);
+        backdrop-filter: blur(28px) saturate(1.2);
+        display: flex;
+        flex-direction: column;
+        box-shadow: var(--shadow-lg);
+        border-radius: var(--border-radius-lg);
+        border: 1.5px solid var(--glass-border);
+        overflow: hidden;
+        transition: var(--transition);
+    }
+
+    .header {
+        padding: 40px 32px 28px 32px;
+        background: var(--secondary-gradient);
+        color: #fff;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        border-bottom-left-radius: 36px;
+        border-bottom-right-radius: 36px;
+        box-shadow: 0 4px 24px 0 rgba(79, 70, 229, 0.10);
+    }
+
+    .header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: shimmer 3s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+        0%, 100% { transform: rotate(0deg); }
+        50% { transform: rotate(180deg); }
+    }
+
+    .header h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 8px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        width: 300px;
+        background: var(--glass-bg);
+        border-right: 1.5px solid var(--glass-border);
+        border-radius: 0 36px 36px 0;
+        display: flex;
+        flex-direction: column;
+        transform: translateX(-100%);
+        transition: var(--transition);
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    /* Chat container */
+    .chat-container {
+        flex: 1;
+        padding: 40px 36px 30px 36px;
+        overflow-y: auto;
+        background: linear-gradient(120deg, rgba(245,245,255,0.85) 60%, rgba(120,120,255,0.10) 100%);
+        display: flex;
+        flex-direction: column;
+        border-radius: 32px;
+        box-shadow: 0 2px 12px rgba(120, 120, 255, 0.07);
+        min-height: 600px;
+    }
+
+    /* Welcome card - Bigger */
+    .welcome-card {
+        background: var(--glass-bg);
+        border-radius: 32px;
+        padding: 48px 40px;
+        margin-bottom: 40px;
+        box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+        border: 1.5px solid var(--glass-border);
+        transition: var(--transition);
+        font-size: 1.15rem;
+    }
+
+    .welcome-card h2 {
+        color: #4f46e5;
+        margin-bottom: 20px;
+        font-size: 1.8rem;
+    }
+
+    /* Stat cards - Bigger */
+    .stat-card {
+        background: #f8fafc;
+        padding: 24px;
+        border-radius: 24px;
+        text-align: center;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #4f46e5;
+        margin-bottom: 4px;
+    }
+
+    /* Example Problems - Bigger */
+    .example-problem {
+        background: var(--glass-bg);
+        border: 1.5px solid #a5b4fc;
+        border-radius: 22px;
+        padding: 24px 18px;
+        cursor: pointer;
+        transition: var(--transition);
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        font-size: 1rem;
+    }
+
+    .example-problem:hover {
+        border-color: #6366f1;
+        background: #f1f5f9cc;
+        transform: translateY(-3px) scale(1.03);
+    }
+
+    .example-problem strong {
+        font-size: 1.1rem;
+        color: #374151;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    /* Messages */
+    .message {
+        max-width: 82%;
+        padding: 20px 26px;
+        border-radius: 26px;
+        font-size: 1.08rem;
+        margin-bottom: 10px;
+        transition: var(--transition);
+        animation: fadeInUp 0.5s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    .message.user {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        color: #fff;
+        align-self: flex-end;
+        margin-left: auto;
+        box-shadow: 0 4px 12px rgba(99,102,241,0.4);
+    }
+
+    .message.ai {
+        background: var(--glass-bg);
+        border: 1.5px solid var(--glass-border);
+        color: #232946;
+        align-self: flex-start;
+    }
+
+    /* Input */
+    .input-field {
+        flex: 1;
+        min-height: 54px;
+        max-height: 140px;
+        padding: 18px 24px;
+        border: 2px solid #e5e7eb;
+        border-radius: 32px;
+        font-size: 1.08rem;
+        resize: none;
+        outline: none;
+        transition: var(--transition);
+        background: rgba(245, 245, 255, 0.85);
+    }
+
+    .input-field:focus {
+        border-color: #6366f1;
+        background: #fff;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.10);
+    }
+</style>
+
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-controls">
+                <div class="mode-toggle">
+                    <div class="toggle-switch">
+                        <span>Quick</span>
+                        <div class="switch active" id="modeSwitch">
+                            <div class="switch-handle"></div>
+                        </div>
+                        <span>Learn</span>
+                    </div>
+                </div>
+                <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle Dark Mode">
+                    🌙
+                </button>
+            </div>
+            <h1>🎯 Reflect AI</h1>
+            <p>Master placement interviews by thinking first, not memorizing answers</p>
+        </div>
+
+        <div class="main-content">
+            <div class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <h3>Conversations</h3>
+                    <button class="action-button" onclick="toggleSidebar()">✕</button>
+                </div>
+                <div class="sidebar-content">
+                    <div class="sidebar-section">
+                        <h3>Progress</h3>
+                        <div class="progress-stats">
+                            <div class="stat-card">
+                                <div class="stat-number" id="problemsSolved">0</div>
+                                <div class="stat-label">Problems Solved</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="hintsUsed">0</div>
+                                <div class="stat-label">Hints Used</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sidebar-section">
+                        <h3>Recent Conversations</h3>
+                        <div id="conversationHistory"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-container" id="chatContainer">
+                <div class="chat-header">
+                    <div class="chat-title">Current Session</div>
+                    <div class="chat-actions">
+                        <button class="action-button" onclick="toggleSidebar()">
+                            📋 History
+                        </button>
+                        <button class="action-button" onclick="exportConversation()">
+                            📤 Export
+                        </button>
+                        <button class="action-button" onclick="clearConversation()">
+                            🗑️ Clear
+                        </button>
+                    </div>
+                </div>
+
+                <div class="messages-container">
+                    <div class="welcome-card">
+                        <h2>Welcome to Reflect AI - Placement Prep! 🎯</h2>
+                        <p>I'm designed to help you ace technical interviews and placement tests. Instead of giving direct answers, I'll help you develop problem-solving skills by encouraging reflection and step-by-step thinking - exactly what interviewers want to see!</p>
+                        
+                        <div class="example-problems">
+                            <div class="example-problem" onclick="loadExample('dsa')">
+                                <strong>⚡ Data Structures & Algorithms</strong>
+                                <span>Arrays, Trees, Graphs, DP</span>
+                            </div>
+                            <div class="example-problem" onclick="loadExample('aptitude')">
+                                <strong>🧮 Quantitative Aptitude</strong>
+                                <span>Math, Logical Reasoning</span>
+                            </div>
+                            <div class="example-problem" onclick="loadExample('coding')">
+                                <strong>💻 Coding Problems</strong>
+                                <span>Debug, Optimize, Implement</span>
+                            </div>
+                            <div class="example-problem" onclick="loadExample('system')">
+                                <strong>🏗️ System Design</strong>
+                                <span>Architecture, Scalability</span>
+                            </div>
+                            <div class="example-problem" onclick="loadExample('verbal')">
+                                <strong>📝 Verbal Reasoning</strong>
+                                <span>Reading Comprehension, Logic</span>
+                            </div>
+                            <div class="example-problem" onclick="loadExample('hr')">
+                                <strong>🤝 HR & Behavioral</strong>
+                                <span>Interview Questions, STAR method</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="messages" id="messages"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-container">
+            <div class="input-wrapper">
+                <textarea 
+                    class="input-field" 
+                    id="messageInput" 
+                    placeholder="Ask me anything or paste your problem here..."
+                    rows="1"
+                ></textarea>
+                <button class="send-button" id="sendButton" onclick="sendMessage()">
+                    ➤
+                </button>
+            </div>
+            <div class="character-count" id="charCount"></div>
+        </div>
+    </div>
+
+    <script>
+        // App State
+        let conversationState = {
+            mode: 'learning', // 'learning' or 'quick'
+            currentProblem: null,
+            reflectionComplete: false,
+            hintLevel: 0,
+            maxHints: 4, // Can adjust this number
+            messages: [],
+            conversationHistory: [],
+            problemsSolved: 0,
+            hintsUsed: 0,
+            currentConversationId: null
+        };
+
+        // Initialize app
+        function initializeApp() {
+            // Load saved state
+            loadSavedState();
+            
+            // Initialize dark mode
+            initializeDarkMode();
+            
+            // Initialize sidebar
+            initializeSidebar();
+            
+            // Update stats
+            updateStats();
+            
+            console.log('🧠 Reflect AI initialized!');
+            console.log('Ready to help students learn by thinking first! 🚀');
+        }
+
+        // Dark Mode Functions
+        function initializeDarkMode() {
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('darkModeToggle').textContent = '☀️';
+            }
+        }
+
+        function toggleDarkMode() {
+            const body = document.body;
+            const toggle = document.getElementById('darkModeToggle');
+            
+            body.classList.toggle('dark-mode');
+            const isDarkMode = body.classList.contains('dark-mode');
+            
+            toggle.textContent = isDarkMode ? '☀️' : '🌙';
+            localStorage.setItem('darkMode', isDarkMode);
+        }
+
+        // Sidebar Functions
+        function initializeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const isOpen = localStorage.getItem('sidebarOpen') === 'true';
+            if (isOpen) {
+                sidebar.classList.add('open');
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+            localStorage.setItem('sidebarOpen', sidebar.classList.contains('open'));
+        }
+
+        // Stats Functions
+        function updateStats() {
+            document.getElementById('problemsSolved').textContent = conversationState.problemsSolved;
+            document.getElementById('hintsUsed').textContent = conversationState.hintsUsed;
+        }
+
+        function incrementStat(stat) {
+            conversationState[stat]++;
+            updateStats();
+            saveState();
+        }
+
+        // State Management
+        function saveState() {
+            localStorage.setItem('reflectAIState', JSON.stringify({
+                conversationHistory: conversationState.conversationHistory,
+                problemsSolved: conversationState.problemsSolved,
+                hintsUsed: conversationState.hintsUsed
+            }));
+        }
+
+        function loadSavedState() {
+            const saved = localStorage.getItem('reflectAIState');
+            if (saved) {
+                const state = JSON.parse(saved);
+                conversationState.conversationHistory = state.conversationHistory || [];
+                conversationState.problemsSolved = state.problemsSolved || 0;
+                conversationState.hintsUsed = state.hintsUsed || 0;
+                updateConversationHistory();
+            }
+        }
+
+        // Conversation History
+        function updateConversationHistory() {
+            const container = document.getElementById('conversationHistory');
+            container.innerHTML = '';
+            
+            conversationState.conversationHistory.slice(-10).reverse().forEach(conv => {
+                const item = document.createElement('div');
+                item.className = 'conversation-item';
+                item.innerHTML = `
+                    <div class="conversation-title">${conv.title}</div>
+                    <div class="conversation-preview">${conv.preview}</div>
+                `;
+                item.onclick = () => loadConversation(conv.id);
+                container.appendChild(item);
+            });
+        }
+
+        function saveConversation() {
+            if (conversationState.messages.length > 0) {
+                const conversation = {
+                    id: Date.now(),
+                    title: conversationState.currentProblem ? 
+                        conversationState.currentProblem.substring(0, 50) + '...' : 
+                        'New Conversation',
+                    preview: conversationState.messages[0]?.content?.substring(0, 100) + '...' || 'Empty conversation',
+                    messages: [...conversationState.messages],
+                    timestamp: Date.now()
+                };
+                
+                conversationState.conversationHistory.push(conversation);
+                updateConversationHistory();
+                saveState();
+            }
+        }
+
+        function loadConversation(id) {
+            const conversation = conversationState.conversationHistory.find(c => c.id === id);
+            if (conversation) {
+                conversationState.messages = [...conversation.messages];
+                conversationState.currentConversationId = id;
+                
+                // Clear current messages and reload
+                const messagesContainer = document.getElementById('messages');
+                messagesContainer.innerHTML = '';
+                
+                conversation.messages.forEach(msg => {
+                    addMessage(msg.content, msg.sender, false);
+                });
+                
+                toggleSidebar(); // Close sidebar after loading
+            }
+        }
+
+        // Export and Clear Functions
+        function exportConversation() {
+            if (conversationState.messages.length === 0) {
+                alert('No conversation to export!');
+                return;
+            }
+            
+            const exportData = {
+                timestamp: new Date().toISOString(),
+                mode: conversationState.mode,
+                problem: conversationState.currentProblem,
+                messages: conversationState.messages
+            };
+            
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `reflectai-conversation-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function clearConversation() {
+            if (confirm('Are you sure you want to clear the current conversation?')) {
+                conversationState.messages = [];
+                conversationState.currentProblem = null;
+                conversationState.reflectionComplete = false;
+                conversationState.hintLevel = 0;
+                conversationState.currentConversationId = null;
+                
+                document.getElementById('messages').innerHTML = '';
+                document.getElementById('messageInput').value = '';
+                document.getElementById('charCount').textContent = '';
+            }
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            
+            // Mode Toggle
+            document.getElementById('modeSwitch').addEventListener('click', function() {
+                this.classList.toggle('active');
+                conversationState.mode = this.classList.contains('active') ? 'learning' : 'quick';
+                
+                // Update placeholder based on mode
+                const input = document.getElementById('messageInput');
+                if (conversationState.mode === 'learning') {
+                    input.placeholder = "Ask me anything or paste your problem here...";
+                } else {
+                    input.placeholder = "Quick question? I'll help you directly...";
+                }
+            });
+
+            // Dark Mode Toggle
+            document.getElementById('darkModeToggle').addEventListener('click', toggleDarkMode);
+        });
+
+        // Auto-resize textarea
+        const messageInput = document.getElementById('messageInput');
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            
+            // Update character count
+            const charCount = document.getElementById('charCount');
+            charCount.textContent = `${this.value.length} characters`;
+        });
+
+        // Enter to send (Shift+Enter for new line)
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Example Problem Loaders
+        function loadExample(type) {
+            const examples = {
+                dsa: "Find the maximum sum subarray in: [-2, 1, -3, 4, -1, 2, 1, -5, 4]. What algorithm should I use?",
+                aptitude: "If a train travels at 60 km/h for the first half of the journey and 40 km/h for the second half, what's the average speed for the entire journey?",
+                coding: "Write a function to reverse a linked list. I know the basic structure but I'm confused about the pointer manipulation.",
+                system: "Design a URL shortener like bit.ly. How would you handle millions of requests per day?",
+                verbal: "Read this: 'The company's profits increased by 20% last quarter.' What can we infer about the company's performance?",
+                hr: "Tell me about a time you faced a difficult technical challenge. How did you approach it?"
+            };
+            
+            document.getElementById('messageInput').value = examples[type];
+            messageInput.style.height = 'auto';
+            messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
+        }
+
+        // Send Message Function
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            // Validate input using utility function
+            if (!Utils.validateMessage(message)) {
+                if (message.length > 2000) {
+                    Utils.showToast('Message is too long. Please keep it under 2000 characters.', 'error');
+                } else {
+                    console.log('Empty message, not sending');
+                }
+                return;
+            }
+            
+            // Disable input while processing
+            input.disabled = true;
+            const sendButton = document.getElementById('sendButton');
+            sendButton.disabled = true;
+            
+            try {
+                // Add user message
+                addMessage(message, 'user');
+                input.value = '';
+                input.style.height = 'auto';
+                document.getElementById('charCount').textContent = '';
+                
+                // Show loading
+                showLoading();
+                
+                // Process message based on mode
+                if (conversationState.mode === 'learning') {
+                    await handleLearningMode(message);
+                } else {
+                    await handleQuickMode(message);
+                }
+            } catch (error) {
+                console.error('Error processing message:', error);
+                addMessage('Sorry, there was an error processing your message. Please try again.', 'ai');
+            } finally {
+                // Re-enable input
+                input.disabled = false;
+                sendButton.disabled = false;
+                hideLoading();
+            }
+        }
+
+        // Learning Mode Logic
+        async function handleLearningMode(message) {
+            // First message - ask for reflection
+            if (conversationState.messages.length === 1) {
+                conversationState.currentProblem = message;
+                
+                const reflectionPrompt = `
+                    <div class="reflection-gate">
+                        <h3>🤔 Hold on! Let's reflect first...</h3>
+                        <p>Before I give you any hints, I'd love to understand what you already know about this problem. This helps me give you better, personalized guidance.</p>
+                        <p><strong>Please explain:</strong> What do you understand about this problem? What approaches might work? What are you unsure about?</p>
+                    </div>
+                `;
+                
+                addMessage(reflectionPrompt, 'ai');
+                return;
+            }
+            
+            // Check if reflection is adequate (simple length check for now)
+            if (!conversationState.reflectionComplete && message.length < 50) {
+                const encouragement = `
+                    <div class="reflection-gate">
+                        <h3>💭 A bit more reflection needed...</h3>
+                        <p>I can see you're thinking about it! Could you elaborate a bit more? Try to write at least 2-3 sentences about what you understand or what you're thinking.</p>
+                        <p>This really helps me give you the most relevant hints! 😊</p>
+                    </div>
+                `;
+                addMessage(encouragement, 'ai');
+                return;
+            }
+            
+            // Mark reflection as complete and give first hint
+            if (!conversationState.reflectionComplete) {
+                conversationState.reflectionComplete = true;
+                await giveHint(1);
+                return;
+            }
+            
+            // Handle hint requests
+            if (message.toLowerCase().includes('hint') || message.toLowerCase().includes('help') || message.toLowerCase().includes('next')) {
+                if (conversationState.hintLevel < conversationState.maxHints) {
+                    await giveHint(conversationState.hintLevel + 1);
+                } else {
+                    await giveFinalAnswer();
+                }
+                return;
+            }
+            
+            // Check if student is asking for direct solution
+            const directAnswerWords = ['give me the answer', 'just give answer', 'give the code', 'show solution', 'final answer'];
+            const isAskingForSolution = directAnswerWords.some(phrase => 
+                message.toLowerCase().includes(phrase.toLowerCase())
+            );
+            
+            if (isAskingForSolution) {
+                await giveFinalAnswer();
+                return;
+            }
+            
+            // General response to student's attempt - but trigger next hint if they seem stuck
+            const response = await getAIResponse(message, 'feedback');
+            
+            // Add hint progression after feedback
+            const feedbackWithHints = `
+                ${response}
+                <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
+                    ${conversationState.hintLevel < conversationState.maxHints ? 
+                        '<button class="hint-button" onclick="requestNextHint()">Need a hint?</button>' : 
+                        ''
+                    }
+                    <button class="answer-button" onclick="getFinalAnswer()">Give me the answer</button>
+                </div>
+            `;
+            
+            addMessage(feedbackWithHints, 'ai');
+        }
+
+        // Quick Mode Logic
+        async function handleQuickMode(message) {
+            const response = await getAIResponse(message, 'quick');
+            addMessage(response, 'ai');
+        }
+
+        // Hint System
+        async function giveHint(level) {
+            conversationState.hintLevel = level;
+            incrementStat('hintsUsed');
+            
+            let hintType = '';
+            if (level === 1) hintType = 'gentle nudge';
+            else if (level === 2) hintType = 'specific direction';
+            else if (level === 3) hintType = 'step-by-step guide';
+            else if (level === 4) hintType = 'detailed walkthrough';
+            
+            const hint = await getAIResponse(conversationState.currentProblem, 'hint', level);
+            
+            const hintMessage = `
+                <div class="hint-level">💡 Hint Level ${level} - ${hintType}</div>
+                ${hint}
+                <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
+                    ${level < conversationState.maxHints ? 
+                        '<button class="hint-button" onclick="requestNextHint()">Need another hint?</button>' : 
+                        ''
+                    }
+                    <button class="answer-button" onclick="getFinalAnswer()">Give me the answer</button>
+                </div>
+            `;
+            
+            addMessage(hintMessage, 'ai');
+        }
+
+        // Request next hint
+        function requestNextHint() {
+            if (conversationState.hintLevel < conversationState.maxHints) {
+                addMessage("I'd like another hint please!", 'user');
+                setTimeout(() => giveHint(conversationState.hintLevel + 1), 500);
+            }
+        }
+
+        // Get final answer
+        function getFinalAnswer() {
+            addMessage("Please show me the complete solution.", 'user');
+            setTimeout(() => giveFinalAnswer(), 500);
+        }
+
+        async function giveFinalAnswer() {
+            if (!conversationState.currentProblem) {
+                const noContextMessage = `
+                    <div class="hint-level">❓ No Current Problem</div>
+                    <p>I don't have a specific problem to solve right now. Could you share what you're working on?</p>
+                    <p>For example:</p>
+                    <ul>
+                        <li>A coding problem or bug</li>
+                        <li>A math equation</li>
+                        <li>A concept you're trying to understand</li>
+                    </ul>
+                `;
+                addMessage(noContextMessage, 'ai');
+                return;
+            }
+            
+            incrementStat('problemsSolved');
+            const answer = await getAIResponse(conversationState.currentProblem, 'final');
+            const finalMessage = `
+                <div class="hint-level">✅ Complete Solution</div>
+                ${answer}
+                <div style="margin-top: 15px; padding: 15px; background: #f0f9ff; border-radius: 8px; border-left: 4px solid #0ea5e9;">
+                    <strong>🎉 Hope that helps!</strong> Feel free to ask about any part you'd like me to explain further, or start with a new problem!
+                </div>
+            `;
+            addMessage(finalMessage, 'ai');
+        }
+
+        // Handle student attempts
+        async function handleStudentAttempt(message) {
+            // Check if student is asking for direct solution
+            const directAnswerWords = ['give me the answer', 'just give answer', 'give the code', 'show solution', 'final answer'];
+            const isAskingForSolution = directAnswerWords.some(phrase => 
+                message.toLowerCase().includes(phrase.toLowerCase())
+            );
+            
+            if (isAskingForSolution && conversationState.currentProblem) {
+                await giveFinalAnswer();
+                return;
+            }
+            
+            // Check if student wants to skip to answer without a current problem
+            if (isAskingForSolution && !conversationState.currentProblem) {
+                const clarification = `
+                    <div class="reflection-gate">
+                        <h3>🤔 What problem would you like the answer to?</h3>
+                        <p>I'm ready to help! Could you share the specific problem or question you're working on? Then I can provide the complete solution.</p>
+                    </div>
+                `;
+                addMessage(clarification, 'ai');
+                return;
+            }
+            
+            const feedback = await getAIResponse(message, 'feedback');
+            addMessage(feedback, 'ai');
+        }
+
+        // Groq API Configuration
+        const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+        
+        // Get API key from environment or prompt user
+        let GROQ_API_KEY = null;
+        
+        // Check if running in development with environment variables
+        if (typeof process !== 'undefined' && process.env && process.env.GROQ_API_KEY) {
+            GROQ_API_KEY = process.env.GROQ_API_KEY;
+        }
+        
+        // API Key Setup Function
+        function setupAPIKey() {
+            if (!GROQ_API_KEY) {
+                const storedKey = localStorage.getItem('groq_api_key');
+                if (storedKey) {
+                    GROQ_API_KEY = storedKey;
+                } else {
+                    const key = prompt('Please enter your Groq API key:\n(Get one free from console.groq.com)');
+                    if (key && key.trim()) {
+                        GROQ_API_KEY = key.trim();
+                        // Ask if user wants to save it locally
+                        const save = confirm('Save API key locally in browser? (Only you can access it on this device)');
+                        if (save) {
+                            localStorage.setItem('groq_api_key', GROQ_API_KEY);
+                        }
+                    }
+                }
+            }
+            return GROQ_API_KEY;
+        }
+
+        // Real AI Response with Groq API
+        async function getAIResponse(message, type, level = 1) {
+            try {
+                // Ensure we have an API key
+                if (!setupAPIKey()) {
+                    return "Please provide a valid Groq API key to use the AI features. You can get one free from console.groq.com";
+                }
+
+                // Validate input message using utility function
+                if (!Utils.validateMessage(message)) {
+                    console.error('Invalid message content:', message);
+                    return getFallbackResponse(type, level);
+                }
+                
+                // Sanitize message content
+                const sanitizedMessage = Utils.sanitizeMessage(message);
+
+                const systemPrompts = {
+                    hint: getHintSystemPrompt(level),
+                    final: getFinalAnswerPrompt(),
+                    feedback: getFeedbackPrompt(),
+                    quick: getQuickModePrompt()
+                };
+
+                // Build messages array with proper validation
+                const messages = [
+                    {
+                        role: "system", 
+                        content: systemPrompts[type] || systemPrompts.quick
+                    }
+                ];
+
+                // Add context messages for better continuity with validation
+                if (type === 'hint' && conversationState.currentProblem) {
+                    const problemContent = conversationState.currentProblem.trim();
+                    if (problemContent) {
+                        messages.push({
+                            role: "user",
+                            content: `Original problem: ${problemContent}`
+                        });
+                    }
+                    
+                    // Add reflection if available and valid
+                    if (conversationState.messages && conversationState.messages.length > 1) {
+                        const reflection = conversationState.messages[1];
+                        if (reflection && reflection.sender === 'user' && reflection.content && reflection.content.trim()) {
+                            messages.push({
+                                role: "user",
+                                content: `My understanding: ${reflection.content.trim()}`
+                            });
+                        }
+                    }
+                } else {
+                    // Add the main message
+                    messages.push({
+                        role: "user",
+                        content: sanitizedMessage
+                    });
+                }
+
+                // Validate all messages before sending
+                const validMessages = messages.filter(msg => 
+                    msg.content && 
+                    typeof msg.content === 'string' && 
+                    msg.content.trim().length > 0
+                );
+
+                if (validMessages.length === 0) {
+                    console.error('No valid messages to send');
+                    return getFallbackResponse(type, level);
+                }
+
+                const requestBody = {
+                    model: "llama-3.1-8b-instant",
+                    messages: validMessages,
+                    temperature: 0.7,
+                    max_tokens: 400,
+                    stream: false
+                };
+
+                console.log('Sending request:', JSON.stringify(requestBody, null, 2));
+
+                const response = await fetch(GROQ_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${GROQ_API_KEY}`,
+                        'Content-Type': 'application/json',
+                        'User-Agent': 'ReflectAI/2.0'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('API Error Response:', errorText);
+                    
+                    if (response.status === 401) {
+                        localStorage.removeItem('groq_api_key');
+                        GROQ_API_KEY = null;
+                        return "Invalid API key. Please check your Groq API key and try again.";
+                    }
+                    
+                    if (response.status === 400) {
+                        console.error('Bad request - check the request format');
+                        console.error('Request body:', JSON.stringify(requestBody, null, 2));
+                        return Utils.formatErrorMessage('400');
+                    }
+                    
+                    if (response.status === 429) {
+                        return Utils.formatErrorMessage('429');
+                    }
+                    
+                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                }
+
+                const data = await response.json();
+                
+                if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+                    console.error('Unexpected response format:', data);
+                    return getFallbackResponse(type, level);
+                }
+
+                return data.choices[0].message.content.trim();
+
+            } catch (error) {
+                console.error('Groq API Error:', error);
+                return getFallbackResponse(type, level);
+            }
+        }
+
+        // System Prompts for Different Response Types
+        function getHintSystemPrompt(level) {
+            const prompts = {
+                1: `You are Reflect AI helping with placement prep. Give a gentle, SPECIFIC hint about the algorithm or approach needed. Don't give generic advice about "breaking down problems." Be concrete about the actual solution method.
+
+For maximum subarray problems: Ask about what decision they need to make at each array position, or mention keeping track of running totals.
+
+Example: "As you scan through the array left to right, at each number you have a choice: continue the current sum or start fresh. What would help you decide when to start over?"
+
+Keep it 1-2 sentences. Be algorithm-specific, not generic.`,
+                
+                2: `You are Reflect AI. Give a MORE SPECIFIC hint about the exact technique. Mention the key insight or decision rule without giving the full algorithm name. 2-3 sentences max.
+
+For maximum subarray: "The key insight is this: if your running sum becomes negative, it's better to start fresh from the next position rather than drag along the negative sum. What would you track to implement this logic?"
+
+Be specific about the core algorithmic insight.`,
+                
+                3: `You are Reflect AI. Give STEP-BY-STEP guidance about the algorithm without writing code. List the exact steps they need to follow.
+
+For maximum subarray: "Here's the approach: 1) Keep track of current sum and maximum sum seen so far 2) At each position, add the current number to your running sum 3) If running sum becomes negative, reset it to 0 4) Update your maximum if current sum is higher. This gives you O(n) solution."`
+            };
+            
+            return prompts[level] || prompts[1];
+        }
+
+        function getFinalAnswerPrompt() {
+            return `You are Reflect AI providing the COMPLETE SOLUTION to the specific problem the student asked about. 
+
+IMPORTANT: Look at the conversation context. If you gave hints that mentioned specific code examples or problems, solve THOSE specific examples, not generic explanations.
+
+For example:
+- If your hint mentioned "make this code print numbers 5 to 9", provide the exact code solution
+- If discussing a specific bug, show the corrected code
+- Be specific and practical, not general
+
+Provide working code/solution with clear explanation of what was wrong and how to fix it. Be educational but focused on the actual problem.`;
+        }
+
+        function getFeedbackPrompt() {
+            return `You are Reflect AI. The student just shared their attempt or understanding. Give specific, constructive feedback. Point out what's correct and what needs work. Don't solve it for them - guide them toward the next step. Keep it encouraging and focused. 2-3 sentences max.`;
+        }
+
+        function getQuickModePrompt() {
+            return `You are a helpful AI assistant in Quick Mode. Provide direct, helpful answers while still being educational. Be concise but thorough.`;
+        }
+
+        // Fallback responses in case API fails
+        function getFallbackResponse(type, level = 1) {
+            const fallbacks = {
+                hint: {
+                    1: "Let me give you a gentle nudge... What type of problem are you looking at here? 🤔",
+                    2: "Think about what method or formula might apply to this specific type of problem.",
+                    3: "Here's the approach: 1) Identify the problem type, 2) Choose your method, 3) Apply it step by step."
+                },
+                final: "I apologize, but I'm having trouble connecting to provide the complete solution right now. Please check your API key and try again.",
+                feedback: "I can see you're working on this! Keep thinking about the approach you're taking.",
+                quick: "I'm here to help! Could you rephrase your question?"
+            };
+            
+            if (type === 'hint') {
+                return fallbacks.hint[level] || fallbacks.hint[1];
+            }
+            
+            return fallbacks[type] || fallbacks.quick;
+        }
+
+        // UI Helper Functions
+        function addMessage(content, sender, saveToHistory = true) {
+            // Validate input
+            if (!content || typeof content !== 'string' || content.trim().length === 0) {
+                console.error('Attempted to add empty message:', {content, sender});
+                return;
+            }
+
+            const messagesContainer = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            if (sender === 'ai') {
+                messageDiv.innerHTML = `
+                    <div class="ai-header">
+                        <div class="ai-icon">🧠</div>
+                        <span>Reflect AI</span>
+                    </div>
+                    ${content}
+                `;
+            } else {
+                messageDiv.textContent = content;
+            }
+            
+            messagesContainer.appendChild(messageDiv);
+            
+            // Ensure arrays exist before pushing
+            if (!conversationState.messages) {
+                conversationState.messages = [];
+            }
+            
+            // Store message with validation
+            const messageObj = {
+                content: content.trim(), 
+                sender, 
+                timestamp: Date.now()
+            };
+            conversationState.messages.push(messageObj);
+            
+            // Auto scroll to bottom
+            const messagesContainerEl = document.querySelector('.messages-container');
+            if (messagesContainerEl) {
+                messagesContainerEl.scrollTop = messagesContainerEl.scrollHeight;
+            }
+            
+            // Save conversation if it's a significant interaction
+            if (saveToHistory && conversationState.messages.length > 1) {
+                saveConversation();
+            }
+        }
+
+        function showLoading() {
+            const messagesContainer = document.getElementById('messages');
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'message ai loading';
+            loadingDiv.id = 'loading-message';
+            loadingDiv.innerHTML = `
+                <div class="ai-header">
+                    <div class="ai-icon">🧠</div>
+                    <span>Reflect AI</span>
+                </div>
+                <div class="loading">
+                    <span>Thinking</span>
+                    <div class="loading-dots">
+                        <div class="loading-dot"></div>
+                        <div class="loading-dot"></div>
+                        <div class="loading-dot"></div>
+                    </div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(loadingDiv);
+            
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function hideLoading() {
+            const loadingMessage = document.getElementById('loading-message');
+            if (loadingMessage) {
+                loadingMessage.remove();
+            }
+        }
+
+    </script>
+    <script src="config.js"></script>
+    <script src="utils.js"></script>
+</body>
+</html>

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReflectAI API Test</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .test-container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #4f46e5;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.3s ease;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .error {
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: #dc2626;
+        }
+        
+        .success {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+            color: #166534;
+        }
+        
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e5e7eb;
+            border-top: 2px solid #4f46e5;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        pre {
+            background: #1f2937;
+            color: #e5e7eb;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 ReflectAI API Test Tool</h1>
+        <p>Use this tool to test your Groq API key and debug API issues.</p>
+        
+        <form id="testForm">
+            <div class="form-group">
+                <label for="apiKey">Groq API Key:</label>
+                <input type="password" id="apiKey" placeholder="Enter your Groq API key (starts with gsk_)" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="message">Test Message:</label>
+                <textarea id="message" rows="3" placeholder="Enter a test message..." required>Hello, can you help me understand how to reverse a linked list?</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="mode">Response Mode:</label>
+                <select id="mode">
+                    <option value="quick">Quick Mode</option>
+                    <option value="hint">Hint Mode</option>
+                    <option value="feedback">Feedback Mode</option>
+                    <option value="final">Final Answer Mode</option>
+                </select>
+            </div>
+            
+            <button type="submit" id="testButton">Test API</button>
+        </form>
+        
+        <div id="result" class="result" style="display: none;">
+            <h3>Test Result:</h3>
+            <div id="resultContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+        
+        document.getElementById('testForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const message = document.getElementById('message').value.trim();
+            const mode = document.getElementById('mode').value;
+            const testButton = document.getElementById('testButton');
+            const result = document.getElementById('result');
+            const resultContent = document.getElementById('resultContent');
+            
+            // Validate inputs
+            if (!apiKey || !message) {
+                showResult('Please fill in all fields.', 'error');
+                return;
+            }
+            
+            if (!apiKey.startsWith('gsk_')) {
+                showResult('Invalid API key format. Groq API keys start with "gsk_".', 'error');
+                return;
+            }
+            
+            // Disable button and show loading
+            testButton.disabled = true;
+            testButton.innerHTML = '<div class="loading"><div class="spinner"></div>Testing API...</div>';
+            
+            try {
+                const response = await testAPI(apiKey, message, mode);
+                showResult(response, 'success');
+            } catch (error) {
+                showResult(`Error: ${error.message}`, 'error');
+            } finally {
+                testButton.disabled = false;
+                testButton.textContent = 'Test API';
+            }
+        });
+        
+        async function testAPI(apiKey, message, mode) {
+            const systemPrompts = {
+                quick: 'You are a helpful AI assistant. Provide direct, helpful answers while still being educational.',
+                hint: 'You are Reflect AI helping with placement prep. Give a gentle, SPECIFIC hint about the algorithm or approach needed.',
+                feedback: 'You are Reflect AI. Give specific, constructive feedback. Point out what\'s correct and what needs work.',
+                final: 'You are Reflect AI providing the COMPLETE SOLUTION to the specific problem the student asked about.'
+            };
+            
+            const messages = [
+                {
+                    role: "system",
+                    content: systemPrompts[mode] || systemPrompts.quick
+                },
+                {
+                    role: "user",
+                    content: message
+                }
+            ];
+            
+            const requestBody = {
+                model: "llama-3.1-8b-instant",
+                messages: messages,
+                temperature: 0.7,
+                max_tokens: 400,
+                stream: false
+            };
+            
+            console.log('Sending request:', JSON.stringify(requestBody, null, 2));
+            
+            const response = await fetch(GROQ_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json',
+                    'User-Agent': 'ReflectAI-Test/1.0'
+                },
+                body: JSON.stringify(requestBody)
+            });
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('API Error Response:', errorText);
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
+            }
+            
+            const data = await response.json();
+            console.log('API Response:', data);
+            
+            if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+                throw new Error('Unexpected response format');
+            }
+            
+            return data.choices[0].message.content.trim();
+        }
+        
+        function showResult(content, type) {
+            const result = document.getElementById('result');
+            const resultContent = document.getElementById('resultContent');
+            
+            result.style.display = 'block';
+            result.className = `result ${type}`;
+            
+            if (type === 'success') {
+                resultContent.innerHTML = `
+                    <p><strong>✅ API Test Successful!</strong></p>
+                    <p><strong>Response:</strong></p>
+                    <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; margin-top: 10px;">
+                        ${content.replace(/\n/g, '<br>')}
+                    </div>
+                `;
+            } else {
+                resultContent.innerHTML = `
+                    <p><strong>❌ API Test Failed</strong></p>
+                    <p>${content}</p>
+                `;
+            }
+        }
+        
+        // Load saved API key if available
+        window.addEventListener('load', function() {
+            const savedKey = localStorage.getItem('groq_api_key');
+            if (savedKey) {
+                document.getElementById('apiKey').value = savedKey;
+            }
+        });
+    </script>
+</body>
+</html>

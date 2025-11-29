@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReflectAI Demo - Feature Showcase</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 40px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #4f46e5;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(99, 102, 241, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-4px);
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 16px;
+        }
+        
+        .feature-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+        
+        .feature-description {
+            color: #6b7280;
+            line-height: 1.6;
+        }
+        
+        .cta-section {
+            text-align: center;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            padding: 40px;
+            border-radius: 16px;
+            margin-top: 40px;
+        }
+        
+        .cta-button {
+            background: white;
+            color: #4f46e5;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+        
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .stat-card {
+            background: #f8fafc;
+            padding: 24px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #4f46e5;
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            color: #6b7280;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1>🎯 ReflectAI - Feature Showcase</h1>
+        
+        <div class="stats-section">
+            <div class="stat-card">
+                <div class="stat-number">2.0</div>
+                <div class="stat-label">Version</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">6</div>
+                <div class="stat-label">Problem Categories</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">4</div>
+                <div class="stat-label">Hint Levels</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Free to Use</div>
+            </div>
+        </div>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🧠</div>
+                <div class="feature-title">AI-Powered Learning</div>
+                <div class="feature-description">
+                    Powered by Groq's Llama 3.1 model for intelligent, contextual responses that adapt to your learning style.
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🌙</div>
+                <div class="feature-title">Dark Mode</div>
+                <div class="feature-description">
+                    Toggle between light and dark themes with persistent preferences. Easy on the eyes for extended learning sessions.
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <div class="feature-title">Progress Tracking</div>
+                <div class="feature-description">
+                    Track problems solved, hints used, and learning progress with detailed statistics and conversation history.
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">💡</div>
+                <div class="feature-title">Progressive Hints</div>
+                <div class="feature-description">
+                    Four-level hint system that guides you from gentle nudges to detailed walkthroughs without giving away answers.
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📱</div>
+                <div class="feature-title">Responsive Design</div>
+                <div class="feature-description">
+                    Seamlessly works on desktop, tablet, and mobile devices with adaptive layouts and touch-friendly interfaces.
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📤</div>
+                <div class="feature-title">Export & Share</div>
+                <div class="feature-description">
+                    Export conversations as JSON files, save learning sessions, and share your progress with mentors or peers.
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">⌨️</div>
+                <div class="feature-title">Keyboard Shortcuts</div>
+                <div class="feature-description">
+                    Power user features with keyboard shortcuts for faster navigation and improved productivity.
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <div class="feature-title">Privacy First</div>
+                <div class="feature-description">
+                    All data stored locally in your browser. No tracking, no analytics, complete privacy and control.
+                </div>
+            </div>
+        </div>
+        
+        <div class="cta-section">
+            <h2>Ready to Start Learning?</h2>
+            <p>Experience the power of reflection-based learning with ReflectAI. Master placement interviews by thinking first, not memorizing answers.</p>
+            <a href="reflectai.html" class="cta-button">Launch ReflectAI</a>
+        </div>
+    </div>
+</body>
+</html>

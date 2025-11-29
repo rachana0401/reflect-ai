@@ -1,0 +1,43 @@
+{
+  "name": "reflectai",
+  "version": "2.0.0",
+  "description": "An AI-powered learning platform that helps students master placement interviews by thinking first, not memorizing answers",
+  "main": "reflectai.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "serve": "npx serve .",
+    "dev": "npx live-server --port=3000 --open=reflectai.html"
+  },
+  "keywords": [
+    "ai",
+    "education",
+    "placement",
+    "interview",
+    "learning",
+    "reflection",
+    "groq",
+    "llm"
+  ],
+  "author": "ReflectAI Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/reflectai.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/reflectai/issues"
+  },
+  "homepage": "https://github.com/yourusername/reflectai#readme",
+  "devDependencies": {
+    "live-server": "^1.2.2",
+    "serve": "^14.2.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}
