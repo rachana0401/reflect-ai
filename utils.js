@@ -1,33 +1,45 @@
 // Utility functions for ReflectAI
 
-// Keyboard shortcuts
-document.addEventListener('keydown', function(e) {
-    // Ctrl/Cmd + K to focus input
-    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault();
-        document.getElementById('messageInput').focus();
-    }
-    
-    // Ctrl/Cmd + / to toggle sidebar
-    if ((e.ctrlKey || e.metaKey) && e.key === '/') {
-        e.preventDefault();
-        toggleSidebar();
-    }
-    
-    // Ctrl/Cmd + D to toggle dark mode
-    if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
-        e.preventDefault();
-        toggleDarkMode();
-    }
-    
-    // Escape to close sidebar
-    if (e.key === 'Escape') {
-        const sidebar = document.getElementById('sidebar');
-        if (sidebar.classList.contains('open')) {
-            toggleSidebar();
+// Keyboard shortcuts (only attach if DOM is ready)
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', attachKeyboardShortcuts);
+} else {
+    attachKeyboardShortcuts();
+}
+
+function attachKeyboardShortcuts() {
+    document.addEventListener('keydown', function(e) {
+        // Ctrl/Cmd + K to focus input
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            const input = document.getElementById('messageInput');
+            if (input) input.focus();
         }
-    }
-});
+        
+        // Ctrl/Cmd + / to toggle sidebar
+        if ((e.ctrlKey || e.metaKey) && e.key === '/') {
+            e.preventDefault();
+            if (typeof toggleSidebar === 'function') {
+                toggleSidebar();
+            } else {
+                const sidebar = document.getElementById('sidebar');
+                if (sidebar) sidebar.classList.toggle('closed');
+            }
+        }
+        
+        // Escape to close sidebar
+        if (e.key === 'Escape') {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar && !sidebar.classList.contains('closed')) {
+                if (typeof toggleSidebar === 'function') {
+                    toggleSidebar();
+                } else {
+                    sidebar.classList.add('closed');
+                }
+            }
+        }
+    });
+}
 
 // Utility functions
 const Utils = {
